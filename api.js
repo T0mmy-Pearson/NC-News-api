@@ -6,6 +6,8 @@ app.use(express.json());
 
 app.get("/api", getEndpoints);
 
-app.all('/*splat', ()=>{})
+app.all('/*splat', (req, res) => {
+    res.status(404).send({ msg: "Route not found" });
+  });
 
 module.exports = app;
