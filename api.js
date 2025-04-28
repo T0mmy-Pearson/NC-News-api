@@ -1,15 +1,15 @@
 const express = require("express");
 const app = express();
 const db = require("./db/connection");
-const {getEndpoints, getTopics} = require('./app/controller')
+const {getEndpoints, getTopics, getArticlesById} = require('./app/controller')
 app.use(express.json());
 
 app.get("/api", getEndpoints);
 app.get("/api/topics", getTopics);
+app.get("/api/articles/:article_id", getArticlesById)
 
 
 app.use((err, req, res, next) => {
-      console.log(err, "<<<<<middleware1", err.status, "<---err.status");
      if (err.status && err.msg) {
        res.status(err.status).send({ msg: err.msg });
      } else {
@@ -17,7 +17,6 @@ app.use((err, req, res, next) => {
      }
    });
 app.use((err, req, res, next) => {
-      console.log(err.status, err.code, "<<<<<middleware2");
       if ((err.code = "22P02")) {
         res.status(400).send({ msg: "Bad Request" });
       } else {

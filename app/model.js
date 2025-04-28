@@ -12,3 +12,7 @@ exports.selectTopics = (req, res, next) => {
       return result.rows;
     });
 };
+
+exports.selectArticlesById = (req, res, next) => {
+    
+}

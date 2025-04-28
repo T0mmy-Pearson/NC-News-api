@@ -43,12 +43,14 @@ describe("GET /api/topics", () => {
         });
     });
   });
-  test("404: Not Found, invalid route", () => {
-    return request(app)
-      .get("/apt/invalidroute") 
-      .expect(404)
-      .then((response) => {
-        expect(response.body.msg).toBe("Route not found");
-      });
-  });
 });
+describe("error paths for /api/topics", () => {
+    test("404: Not Found, invalid route", () => {
+      return request(app)
+        .get("/apt/invalidroute") 
+        .expect(404)
+        .then((response) => {
+        expect(response.body.msg).toBe("Route not found");
+        });
+    });
+  });
