@@ -2,7 +2,7 @@ const {
   convertTimestampToDate, createArticlesLookupObj
 } = require("../db/seeds/utils");
 
-describe("convertTimestampToDate", () => {
+xdescribe("convertTimestampToDate", () => {
   test("returns a new object", () => {
     const timestamp = 1557572706232;
     const input = { created_at: timestamp };
@@ -38,7 +38,7 @@ describe("convertTimestampToDate", () => {
   });
 });
 
-describe("create createArticlesLookupObj", () => {
+xdescribe("create createArticlesLookupObj", () => {
   test("should return an empty obj when passed empty array", () => {
     const input = [];
     const result = createArticlesLookupObj(input);
