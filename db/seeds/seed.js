@@ -102,7 +102,7 @@ const seed = (data) => {
           legitComment.created_at
         ]
     });
-    console.log(formattedComments);
+    //console.log(formattedComments);
     
       const insertComments = format(
         `INSERT INTO comments (article_id, body, votes, author, created_at) VALUES %L RETURNING *;`,
