@@ -1,10 +1,10 @@
 const express = require("express");
 const app = express();
 const db = require("./db/connection");
-const controller = require('./app/controller')
+const {getEndpoints} = require('./app/controller')
 app.use(express.json());
 
-
+app.get("/api", getEndpoints);
 
 app.all('/*splat', ()=>{})
 

@@ -1,4 +1,6 @@
-const models = require('./model.js')
+const {selectAll} = require('./model.js')
+const endpoints = require("../endpoints.json");
 
-
-module.exports = {};
+exports.getEndpoints = (req, res, next) => {
+        res.status(200).send({ endpoints });
+};
