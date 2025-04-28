@@ -26,3 +26,29 @@ describe("GET /api", () => {
       });
   });
 });
+describe("GET /api/topics", () => {
+  test("200: Responds with correcrt formatted data from topics", () => {
+    return request(app)
+      .get('/api/topics')
+      .expect(200)
+      .then((response) => {
+        const topics = response.body.topics;
+        expect(topics).toHaveLength(3);
+        topics.forEach((topic) => {
+          expect(topic).toEqual({
+            description: expect.any(String),
+            slug: expect.any(String),
+            img_url: expect.any(String),
+          });
+        });
+    });
+  });
+  test("404: Not Found, invalid route", () => {
+    return request(app)
+      .get("/apt/invalidroute") 
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Route not found");
+      });
+  });
+});
