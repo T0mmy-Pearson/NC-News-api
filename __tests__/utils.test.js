@@ -1,5 +1,5 @@
 const {
-  convertTimestampToDate
+  convertTimestampToDate, createArticlesLookupObj
 } = require("../db/seeds/utils");
 
 describe("convertTimestampToDate", () => {
@@ -38,3 +38,53 @@ describe("convertTimestampToDate", () => {
   });
 });
 
+describe("create createArticlesLookupObj", () => {
+  test("should return an empty obj when passed empty array", () => {
+    const input = [];
+    const result = createArticlesLookupObj(input);
+    expect(result).toEqual({})
+  });
+  test("should return an obj containg a k:v pair when passed an array of length 1", () => {
+    const input = [{
+      article_id: 12,
+      title: 'Moustache',
+      topic: 'mitch',
+      author: 'butter_bridge',
+      body: 'Have you seen the size of that thing?',
+      created_at: "2020-10-11T11:24:00.000Z",
+      votes: 0,
+      article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+    }];
+    const result = createArticlesLookupObj(input);
+    expect(result).toEqual({
+      'Moustache': 12,
+    })
+  });
+  test("should return an obj containg multi k:v pair when passed an array of multi article objs", () => {
+    const input = [{
+      article_id: 12,
+      title: 'Moustache',
+      topic: 'mitch',
+      author: 'butter_bridge',
+      body: 'Have you seen the size of that thing?',
+      created_at: "2020-10-11T11:24:00.000Z",
+      votes: 0,
+      article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+    }, 
+    {
+      article_id: 13,
+      title: 'Another article about Mitch',
+      topic: 'mitch',
+      author: 'butter_bridge',
+      body: 'There will never be enough articles about Mitch!',
+      created_at: "2020-10-11T11:24:00.000Z",
+      votes: 0,
+      article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+    }];
+    const result = createArticlesLookupObj(input);
+    expect(result).toEqual({
+      'Moustache': 12,
+      'Another article about Mitch': 13
+    })
+  });
+})

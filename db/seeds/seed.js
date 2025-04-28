@@ -1,6 +1,8 @@
 const db = require("../connection")
 const { Pool } = require('pg');
 const format = require('pg-format');
+const {convertTimestampToDate, createArticlesLookupObj} = require("./utils")
+
 
 const seed = (data) => {
   const { topicData, userData, articleData, commentData } = data;
@@ -33,8 +35,8 @@ const seed = (data) => {
         CREATE TABLE articles (
           article_id SERIAL PRIMARY KEY,
           title VARCHAR NOT NULL,
-          topic VARCHAR REFERENCES topics(slug) ON DELETE CASCADE,
-          author VARCHAR REFERENCES users(username) ON DELETE CASCADE,
+          topic VARCHAR REFERENCES topics(slug),
+          author VARCHAR REFERENCES users(username),
           body TEXT NOT NULL,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           votes INT DEFAULT 0,
@@ -46,10 +48,10 @@ const seed = (data) => {
       db.query(`
         CREATE TABLE comments (
           comment_id SERIAL PRIMARY KEY,
-          article_id INT REFERENCES articles(article_id) ON DELETE CASCADE,
+          article_id INT REFERENCES articles(article_id),
           body TEXT NOT NULL,
           votes INT DEFAULT 0,
-          author VARCHAR REFERENCES users(username) ON DELETE CASCADE,
+          author VARCHAR REFERENCES users(username),
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
       `)
@@ -75,7 +77,7 @@ const seed = (data) => {
           topic,
           author,
           body,
-          new Date(created_at).toISOString(), // Convert timestamp to ISO 8601 format
+          new Date(created_at).toISOString(), // ISO 8601
           votes,
           article_img_url,
         ]
@@ -86,20 +88,28 @@ const seed = (data) => {
       );
       return db.query(insertArticles);
     })
-    .then(() => {
-      const formattedComments = commentData.map(
-        ({ article_id, body, votes, author, created_at }) => [
-          article_id,
-          body,
-          votes,
-          author,
-          new Date(created_at).toISOString(), // Convert timestamp to ISO 8601 format
+    .then((result) => {
+      const articlesLookUp = createArticlesLookupObj(result.rows)
+      const formattedComments = commentData.map((comment) => {
+      const legitComment = convertTimestampToDate(comment)
+      //console.log(articlesLookUp);
+        
+          return [
+          articlesLookUp[legitComment.article_title],
+          legitComment.body,
+          legitComment.votes,
+          legitComment.author,
+          legitComment.created_at
         ]
-      );
+    });
+    console.log(formattedComments);
+    
       const insertComments = format(
         `INSERT INTO comments (article_id, body, votes, author, created_at) VALUES %L RETURNING *;`,
         formattedComments
       );
+     // console.log(formattedComments);
+      
       return db.query(insertComments);
     })
     .then(() => {
