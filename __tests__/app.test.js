@@ -15,6 +15,7 @@ afterAll(() => {
   return db.end();
 });
 
+
 describe("GET /api", () => {
   test("200: Responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
@@ -44,16 +45,6 @@ describe("GET /api/topics", () => {
     });
   });
 });
-describe("ERROR PATHS GET/api/topics", () => {
-    test("404: Not Found, invalid route", () => {
-      return request(app)
-        .get("/apt/invalidroute") 
-        .expect(404)
-        .then((response) => {
-        expect(response.body.msg).toBe("Route not found");
-        });
-    });
-  });
 describe("GET /api/articles/:article_id", () => {
   test("200: Responds with the correct objecy corresponding to input article_id", () => {
       return request(app)
@@ -78,9 +69,6 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 describe("ERROR PATHS GET/api/articles/:article_id", () => {
-    test("404: not found, spelling mistake", () => {
-      return request(app).get("/wrongpath").expect(404);
-    });
     test("400: Bad Request when a string passed instead of valid id", () => {
       return request(app)
         .get("/api/articles/tree")
@@ -88,7 +76,15 @@ describe("ERROR PATHS GET/api/articles/:article_id", () => {
         .then((response) => {
           expect(response.body.msg).toBe("Bad Request");
         });
-    });
+  });
+  test("404: request vaild but out of range", () => {
+    return request(app)
+      .get("/api/articles/99")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found");
+      });
+  });
 });
 describe("GET /api/articles", () => {
   test("200: Responds with array of all articles, formatted including comment count from comments table", () => {
@@ -124,9 +120,6 @@ describe("GET /api/articles", () => {
 });
 });
 describe("ERROR PATHS GET/api/articles", () => {
-  test("404: not found, spelling mistake", () => {
-    return request(app).get("/wrongpath").expect(404);
-  });
   test("400: Bad Request when a string passed instead of valid id", () => {
     return request(app)
       .get("/api/articles/tree")
@@ -135,4 +128,68 @@ describe("ERROR PATHS GET/api/articles", () => {
         expect(response.body.msg).toBe("Bad Request");
       });
   });
+});
+describe("404: Not found", () => {
+  test("404: Not Found, invalid route", () => {
+    return request(app)
+      .get("/apt/invalidroute") 
+      .expect(404)
+      .then((response) => {
+      expect(response.body.msg).toBe("Route not found");
+      });
+  });
+});
+describe('POST /api/articles/:article_id/comments', () => {
+  test('201: Responds with the posted comment for the given article_id', () => {
+      const newComment = {
+          username: 'butter_bridge',
+          body: 'This is a fantastic article!',
+      };
+      return request(app)
+          .post('/api/articles/1/comments')
+          .send(newComment)
+          .expect(201)
+          .then(({ body }) => {
+              const { comment } = body;
+              expect(comment).toEqual(
+                  expect.objectContaining({
+                      comment_id: expect.any(Number),
+                      votes: 0,
+                      created_at: expect.any(String),
+                      author: 'butter_bridge',
+                      body: 'This is a fantastic article!',
+                      article_id: 1,
+                  })
+              );
+          });
+  });
+describe('ERROR PATHS POST /api/articles/:article_id/comments', () => { 
+  test('404: Responds with an error if article_id does not exist', () => {
+    const newComment = {
+        username: 'butter_bridge',
+        body: 'This is a fantastic article!',
+    };
+
+    return request(app)
+        .post('/api/articles/9999/comments')
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Article not found');
+        });
+});
+  test('400: Bad Request when invalid article_id is provided', () => {
+      const newComment = {
+          username: 'butter_bridge',
+          body: 'This is a fantastic article!',
+      };
+      return request(app)
+          .post('/api/articles/invalid_id/comments')
+          .send(newComment)
+          .expect(400)
+          .then(({ body }) => {
+              expect(body.msg).toBe('Bad Request');
+          });
+  });
+});
 });
