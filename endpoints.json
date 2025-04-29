@@ -35,5 +35,37 @@
       "article_img_url":
         "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
     }
+  }, 
+  "POST /api/articles": {
+    "description": "posts a new article to the database",
+    "exampleRequestBody": {
+      "title": "A new article",
+      "topic": "cooking",
+      "author": "weegembump",
+      "body": "This is a new article body"
+    },
+    "exampleResponse": {
+      "article": {
+        "title": "A new article",
+        "topic": "cooking",
+        "author": "weegembump",
+        "body": "This is a new article body"
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates the article with the given article_id",
+    "exampleRequestBody": {
+      "inc_votes": 1
+    },
+    "exampleResponse": {
+      "article": {
+        "title": "A new article",
+        "topic": "cooking",
+        "author": "weegembump",
+        "body": "This is a new article body",
+        "votes": 1
+      }
+    }
   }
 }
