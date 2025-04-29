@@ -85,3 +85,20 @@ exports.insertCommentByArticleId = (article_id, username, body) => {
             return result.rows[0]; 
         });
 };
+exports.updateArticleById = (article_id, inc_votes) => {
+    const query = `
+        UPDATE articles
+        SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING *;
+    `;
+    const params = [inc_votes, article_id];
+
+    return db.query(query, params)
+        .then((result) => {
+            if (!result.rows.length) {
+                return Promise.reject({ status: 404, msg: "Article not found" });
+            }
+            return result.rows[0];
+        });
+};
