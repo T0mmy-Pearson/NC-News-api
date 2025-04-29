@@ -15,7 +15,16 @@ afterAll(() => {
   return db.end();
 });
 
-
+describe("ALL: 404: Not found", () => {
+  test("404: Not Found, invalid route", () => {
+    return request(app)
+      .get("/apt/invalidroute") 
+      .expect(404)
+      .then((response) => {
+      expect(response.body.msg).toBe("Route not found");
+      });
+  });
+});
 describe("GET /api", () => {
   test("200: Responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
@@ -67,8 +76,7 @@ describe("GET /api/articles/:article_id", () => {
         )
       });
   });
-});
-describe("ERROR PATHS GET/api/articles/:article_id", () => {
+  describe("ERROR PATHS GET/api/articles/:article_id", () => {
     test("400: Bad Request when a string passed instead of valid id", () => {
       return request(app)
         .get("/api/articles/tree")
@@ -85,6 +93,7 @@ describe("ERROR PATHS GET/api/articles/:article_id", () => {
         expect(response.body.msg).toBe("Not Found");
       });
   });
+});
 });
 describe("GET /api/articles", () => {
   test("200: Responds with array of all articles, formatted including comment count from comments table", () => {
@@ -118,7 +127,6 @@ describe("GET /api/articles", () => {
     });
 });
 });
-});
 describe("ERROR PATHS GET/api/articles", () => {
   test("400: Bad Request when a string passed instead of valid id", () => {
     return request(app)
@@ -129,15 +137,6 @@ describe("ERROR PATHS GET/api/articles", () => {
       });
   });
 });
-describe("404: Not found", () => {
-  test("404: Not Found, invalid route", () => {
-    return request(app)
-      .get("/apt/invalidroute") 
-      .expect(404)
-      .then((response) => {
-      expect(response.body.msg).toBe("Route not found");
-      });
-  });
 });
 describe('POST /api/articles/:article_id/comments', () => {
   test('201: Responds with the posted comment for the given article_id', () => {
@@ -192,4 +191,38 @@ describe('ERROR PATHS POST /api/articles/:article_id/comments', () => {
           });
   });
 });
+});
+describe('GET /api/articles/:article_id/comments', () => {
+  test('200: Responds with an array of comments for the given article_id, sorted by most recent first', () => {
+      return request(app)
+          .get('/api/articles/1/comments')
+          .expect(200)
+          .then(({ body }) => {
+              const { comments } = body;
+              expect(Array.isArray(comments)).toBe(true);
+              expect(comments).toBeSortedBy("created_at", { descending: true });
+              comments.forEach((comment) => {
+              expect(comment).toEqual(
+                      expect.objectContaining({
+                          comment_id: expect.any(Number),
+                          votes: expect.any(Number),
+                          created_at: expect.any(String),
+                          author: expect.any(String),
+                          body: expect.any(String),
+                          article_id: expect.any(Number),
+                      })
+                  );
+              });
+          });
+  });
+  describe("ERROR PATHS GET /api/articles/:article_id/comments", () => {
+    test('400: Responds with an error if article_id is invalid', () => {
+      return request(app)
+          .get('/api/articles/not-a-valid-id/comments')
+          .expect(400)
+          .then(({ body }) => {
+              expect(body.msg).toBe('Bad Request');
+          });
+  });
+  });
 });
