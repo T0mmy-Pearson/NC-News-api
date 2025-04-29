@@ -113,7 +113,7 @@ const seed = (data) => {
       return db.query(insertComments);
     })
     .then(() => {
-      console.log('Database seeded successfully!');
+      //console.log('Database seeded successfully!');
     })
     .catch((err) => {
       console.error('Error during seeding:', err);
