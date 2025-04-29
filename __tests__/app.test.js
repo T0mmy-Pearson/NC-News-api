@@ -226,3 +226,67 @@ describe('GET /api/articles/:article_id/comments', () => {
   });
   });
 });
+describe('PATCH /api/articles/:article_id', () => {
+  test('200: Responds with the updated article when incrementing votes', () => {
+      const update = { inc_votes: 10 };
+      return request(app)
+          .patch('/api/articles/1')
+          .send(update)
+          .expect(200)
+          .then(({ body }) => {
+              const { article } = body;
+              expect(article).toEqual(
+                  expect.objectContaining({
+                      article_id: 1,
+                      votes: expect.any(Number),
+                      author: expect.any(String),
+                      title: expect.any(String),
+                      body: expect.any(String),
+                      topic: expect.any(String),
+                      created_at: expect.any(String),
+                      article_img_url: expect.any(String),
+                  })
+              );
+              expect(article.votes).toBe(110); 
+          });
+  });
+  test('200: Responds with the updated article when decrementing votes', () => {
+      const update = { inc_votes: -50 };
+
+      return request(app)
+          .patch('/api/articles/1')
+          .send(update)
+          .expect(200)
+          .then(({ body }) => {
+              const { article } = body;
+
+              expect(article.votes).toBe(50); 
+          });
+  });
+  test('200: Responds with the updated article when no votes are passed', () => {
+      const update = { inc_votes: 0 };
+
+      return request(app)
+          .patch('/api/articles/1')
+          .send(update)
+          .expect(200)
+          .then(({ body }) => {
+              const { article } = body;
+
+              expect(article.votes).toBe(100); 
+          });
+  });
+describe('ERROR PATHS PATCH /api/articles/:article_id', () => {
+  test('400: Bad Request when invalid article_id is provided', () => {
+      const update = { inc_votes: 10 };
+
+      return request(app)
+          .patch('/api/articles/not-a-valid-id')
+          .send(update)
+          .expect(400)
+          .then(({ body }) => {
+              expect(body.msg).toBe('Bad Request');
+          });
+  });
+});
+});
