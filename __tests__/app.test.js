@@ -101,6 +101,11 @@ describe("GET /api/articles", () => {
       expect(Array.isArray(articles)).toBe(true);
       expect(articles.length).toBe(13); 
 
+      expect(articles).toBeSortedBy("created_at", { descending: true });
+
+      articles.forEach((article) => {
+      expect(article).not.toHaveProperty('body');
+      });
       articles.forEach((article) => {
       expect(article).toEqual(
       expect.objectContaining({
@@ -112,9 +117,9 @@ describe("GET /api/articles", () => {
       votes: expect.any(Number),
       article_img_url: expect.any(String),
       comment_count: expect.any(String), 
-                })
-            );
-        });
+      })
+      );
+    });
 });
 });
 });
