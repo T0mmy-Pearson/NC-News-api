@@ -54,7 +54,6 @@ describe("ERROR PATHS GET/api/topics", () => {
         });
     });
   });
-
 describe("GET /api/articles/:article_id", () => {
   test("200: Responds with the correct objecy corresponding to input article_id", () => {
       return request(app)
@@ -90,4 +89,45 @@ describe("ERROR PATHS GET/api/articles/:article_id", () => {
           expect(response.body.msg).toBe("Bad Request");
         });
     });
+});
+describe("GET /api/articles", () => {
+  test("200: Responds with array of all articles, formatted including comment count from comments table", () => {
+    return request(app)
+    .get('/api/articles')
+    .expect(200)
+    .then((response) => {
+      const articles  = response.body;
+        
+      expect(Array.isArray(articles)).toBe(true);
+      expect(articles.length).toBe(13); 
+
+      articles.forEach((article) => {
+      expect(article).toEqual(
+      expect.objectContaining({
+      author: expect.any(String),
+      title: expect.any(String),
+      article_id: expect.any(Number),
+      topic: expect.any(String),
+      created_at: expect.any(String),
+      votes: expect.any(Number),
+      article_img_url: expect.any(String),
+      comment_count: expect.any(String), 
+                })
+            );
+        });
+});
+});
+});
+describe("ERROR PATHS GET/api/articles", () => {
+  test("404: not found, spelling mistake", () => {
+    return request(app).get("/wrongpath").expect(404);
+  });
+  test("400: Bad Request when a string passed instead of valid id", () => {
+    return request(app)
+      .get("/api/articles/tree")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
 });
