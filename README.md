@@ -10,3 +10,15 @@ set-up databases
     a. test: nc_news_test
     b. dev: nc_news
 
+# lecture
+
+dynamic queries: 
+
+jest sorted - 
+loop through results 
+check if previous object is lower than the current
+jest-sorted : paul copley
+
+install: npm i jest-sorted -D
+
+toBeSortedBy

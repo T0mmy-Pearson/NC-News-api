@@ -44,7 +44,7 @@ describe("GET /api/topics", () => {
     });
   });
 });
-describe("error paths for /api/topics", () => {
+describe("ERROR PATHS GET/api/topics", () => {
     test("404: Not Found, invalid route", () => {
       return request(app)
         .get("/apt/invalidroute") 
@@ -54,3 +54,40 @@ describe("error paths for /api/topics", () => {
         });
     });
   });
+
+describe("GET /api/articles/:article_id", () => {
+  test("200: Responds with the correct objecy corresponding to input article_id", () => {
+      return request(app)
+      .get('/api/articles/1')
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article_id).toEqual(1
+        );
+        expect(response.body).toEqual(
+          {
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            body: expect.any(String),
+            votes: expect.any(Number),
+            topic: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            article_img_url: expect.any(String)
+          }
+        )
+      });
+  });
+});
+describe("ERROR PATHS GET/api/articles/:article_id", () => {
+    test("404: not found, spelling mistake", () => {
+      return request(app).get("/wrongpath").expect(404);
+    });
+    test("400: Bad Request when a string passed instead of valid id", () => {
+      return request(app)
+        .get("/api/articles/tree")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+});
