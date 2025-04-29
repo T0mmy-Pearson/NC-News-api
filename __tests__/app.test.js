@@ -290,3 +290,26 @@ describe('ERROR PATHS PATCH /api/articles/:article_id', () => {
   });
 });
 });
+describe('DELETE /api/comments/:comment_id', () => {
+  test('204: Deletes the given comment by comment_id and responds with no content', () => {
+      return request(app)
+          .delete('/api/comments/1')
+          .expect(204)
+          .then(() => {
+              return db.query('SELECT * FROM comments WHERE comment_id = 1;');
+          })
+          .then((result) => {
+              expect(result.rows.length).toBe(0); 
+          });
+  });
+describe('ERROR PATHS DELETE /api/comments/:comment_id', () => {
+  test('400: Responds with an error if comment_id is invalid', () => {
+      return request(app)
+          .delete('/api/comments/not-a-valid-id')
+          .expect(400)
+          .then(({ body }) => {
+              expect(body.msg).toBe('Bad Request');
+          });
+  });
+});
+});

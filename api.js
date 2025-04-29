@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const db = require("./db/connection");
-const {getEndpoints, getTopics, getArticlesById, getAllArticles, postCommentByArticleId, getCommentsByArticleId, patchArticleById} = require('./app/controller')
+const {getEndpoints, getTopics, getArticlesById, getAllArticles, postCommentByArticleId, getCommentsByArticleId, patchArticleById, deleteCommentById} = require('./app/controller')
 app.use(express.json());
 
 app.get("/api", getEndpoints);
@@ -14,6 +14,7 @@ app.post("/api/articles/:article_id/comments",postCommentByArticleId);
 
 app.patch('/api/articles/:article_id', patchArticleById);
 
+app.delete('/api/comments/:comment_id', deleteCommentById);
 
 
 
