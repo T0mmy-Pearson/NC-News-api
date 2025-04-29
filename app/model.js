@@ -12,7 +12,6 @@ exports.selectTopics = (req, res, next) => {
       return result.rows;
     });
 };
-
 exports.selectArticlesById = (article_id) => {
     const query = `SELECT * FROM articles WHERE article_id = $1;`
     const params = [article_id]
@@ -25,7 +24,6 @@ exports.selectArticlesById = (article_id) => {
             return result.rows[0];
         })
 }
-
 exports.selectAllArticles = () => {
     const query = `SELECT 
         articles.author,
@@ -46,25 +44,44 @@ return db.query(query)
         return result.rows;
     })
 };
+exports.selectCommentsByArticleId = (article_id) => {
+    const query = `
+        SELECT 
+            comment_id,
+            votes,
+            created_at,
+            author,
+            body,
+            article_id
+        FROM comments
+        WHERE article_id = $1
+        ORDER BY created_at DESC;
+    `;
+    const params = [article_id];
 
+    return db.query(query, params)
+        .then((result) => {
+            return result.rows;
+        });
+};
 
 exports.insertCommentByArticleId = (article_id, username, body) => {
 
-      const articleCheckQuery = `SELECT * FROM articles WHERE article_id = $1;`;
+    const articleCheckQuery = `SELECT * FROM articles WHERE article_id = $1;`;
 
-      return db.query(articleCheckQuery, [article_id])
-          .then((result) => {
-              if (!result.rows.length) {
-                  return Promise.reject({ status: 404, msg: "Article not found" });
-              }
-              const query = `
-                  INSERT INTO comments (article_id, author, body, created_at, votes)
-                  VALUES ($1, $2, $3, NOW(), 0)
-                  RETURNING comment_id, votes, created_at, author, body, article_id;
-              `;
-              return db.query(query, [article_id, username, body]);
-          })
-          .then((result) => {
-              return result.rows[0]; 
-          });
-  };
+    return db.query(articleCheckQuery, [article_id])
+        .then((result) => {
+            if (!result.rows.length) {
+                return Promise.reject({ status: 404, msg: "Article not found" });
+            }
+            const query = `
+                INSERT INTO comments (article_id, author, body, created_at, votes)
+                VALUES ($1, $2, $3, NOW(), 0)
+                RETURNING comment_id, votes, created_at, author, body, article_id;
+            `;
+            return db.query(query, [article_id, username, body]);
+        })
+        .then((result) => {
+            return result.rows[0]; 
+        });
+};
