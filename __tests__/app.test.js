@@ -363,4 +363,33 @@ test('200: correct data types and properties in output', () => {
 });
 });
 
-
+describe('GET /api/articles (topic query)', () => {
+  test('200: Filters articles by a valid topic', () => {
+      return request(app)
+          .get('/api/articles?topic=coding')
+          .expect(200)
+          .then(({ body }) => {
+              const articles  = body;
+              articles.forEach((article) => {
+                  expect(article.topic).toBe('coding');
+              });
+          });
+  });
+  test('200: Responds with an empty array if the topic exists but has no articles', () => {
+    return request(app)
+        .get('/api/articles?topic=paper')
+        .expect(200)
+        .then(({ body }) => {
+            expect(body).toEqual([]);
+        });
+});
+test('200: Responds with all articles if the topic query is omitted', () => {
+  return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then(({ body }) => {
+          const articles  = body;
+          expect(articles.length).toBeGreaterThan(0);
+      });
+});
+});

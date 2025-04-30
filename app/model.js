@@ -24,7 +24,7 @@ exports.selectArticlesById = (article_id) => {
             return result.rows[0];
         })
 }
-exports.selectAllArticles = (sort_by = 'created_at', order = 'desc') => {
+exports.selectAllArticles = (sort_by = 'created_at', order = 'desc', topic) => {
     const validSortColumns = [
         'article_id',
         'title',
@@ -43,28 +43,32 @@ exports.selectAllArticles = (sort_by = 'created_at', order = 'desc') => {
         throw { status: 400, msg: 'Invalid order query' };
     }
 
+const baseQuery = `
+SELECT  articles.author,
+        articles.title,
+        articles.article_id,
+        articles.topic,
+        articles.created_at,
+        articles.votes,
+        articles.article_img_url,
+        COUNT(comments.comment_id)::TEXT AS comment_count
+FROM articles
+LEFT JOIN comments ON articles.article_id = comments.article_id
+`;
 
-    const query = `
-        SELECT 
-            articles.author,
-            articles.title,
-            articles.article_id,
-            articles.topic,
-            articles.created_at,
-            articles.votes,
-            articles.article_img_url,
-            COUNT(comments.comment_id)::TEXT AS comment_count
-        FROM articles
-        LEFT JOIN comments ON articles.article_id = comments.article_id
-        GROUP BY articles.article_id
-        ORDER BY ${sort_by} ${order};
-    `;
 
-    return db.query(query)
-        .then((result) => {
-            return result.rows; 
-        });
-};
+const whereClause = topic ? `WHERE articles.topic = $1` : '';
+const groupBy = `GROUP BY articles.article_id`;
+const orderBy = `ORDER BY ${sort_by} ${order}`;
+
+const query = `${baseQuery} ${whereClause} ${groupBy} ${orderBy};`;
+
+const params = topic ? [topic] : [];
+return db.query(query, params)
+    .then((result) => {
+        return result.rows 
+    })
+}
 exports.selectCommentsByArticleId = (article_id) => {
     const query = `
         SELECT 
