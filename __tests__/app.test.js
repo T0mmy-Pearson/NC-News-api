@@ -96,36 +96,33 @@ describe("GET /api/articles/:article_id", () => {
 });
 });
 describe("GET /api/articles", () => {
-  test("200: Responds with array of all articles, formatted including comment count from comments table", () => {
+  test("200: Responds with an array of all articles, formatted including comment count from comments table", () => {
     return request(app)
-    .get('/api/articles')
-    .expect(200)
-    .then((response) => {
-      const articles  = response.body;
-        
-      expect(Array.isArray(articles)).toBe(true);
-      expect(articles.length).toBe(13); 
+      .get('/api/articles')
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body; 
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles).toBeSortedBy("created_at", { descending: true });
 
-      expect(articles).toBeSortedBy("created_at", { descending: true });
 
-      articles.forEach((article) => {
-      expect(article).not.toHaveProperty('body');
+        articles.forEach((article) => {
+          expect(article).not.toHaveProperty('body'); 
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(String), 
+            })
+          );
+        });
       });
-      articles.forEach((article) => {
-      expect(article).toEqual(
-      expect.objectContaining({
-      author: expect.any(String),
-      title: expect.any(String),
-      article_id: expect.any(Number),
-      topic: expect.any(String),
-      created_at: expect.any(String),
-      votes: expect.any(Number),
-      article_img_url: expect.any(String),
-      comment_count: expect.any(String), 
-      })
-      );
-    });
-});
+  });
 });
 describe("ERROR PATHS GET/api/articles", () => {
   test("400: Bad Request when a string passed instead of valid id", () => {
@@ -136,7 +133,6 @@ describe("ERROR PATHS GET/api/articles", () => {
         expect(response.body.msg).toBe("Bad Request");
       });
   });
-});
 });
 describe('POST /api/articles/:article_id/comments', () => {
   test('201: Responds with the posted comment for the given article_id', () => {
@@ -320,7 +316,6 @@ describe('GET /api/users', () => {
           .expect(200)
           .then(({ body }) => {
               const { users } = body;
-              expect(Array.isArray(users)).toBe(true);
               expect(users.length).toBe(4); 
               users.forEach((user) => {
                   expect(user).toEqual(
@@ -335,3 +330,37 @@ describe('GET /api/users', () => {
   });
   //error path: 400 request, help desk
 });
+describe('GET /api/articles (sorting queries)', () => {
+  test('200: Sorts default column created_at and in descending order by default', () => {
+      return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then(({ body }) => {
+              expect(body).toBeSortedBy("created_at", { descending: true });
+          });
+  });
+test('200: correct data types and properties in output', () => {
+  return request(app)
+      .get('/api/articles?sort_by=votes&order=asc')
+      .expect(200)
+      .then(({ body }) => {
+          const articles = body;
+          articles.forEach((article) => {
+              expect(article).toEqual(
+                  expect.objectContaining({
+                      article_id: expect.any(Number),
+                      title: expect.any(String),
+                      author: expect.any(String),
+                      topic: expect.any(String),
+                      created_at: expect.any(String),
+                      votes: expect.any(Number),
+                      article_img_url: expect.any(String),
+                      comment_count: expect.any(String),
+                  })
+              );
+          });
+      });
+});
+});
+
+
