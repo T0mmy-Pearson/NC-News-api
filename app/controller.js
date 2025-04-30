@@ -28,7 +28,9 @@ exports.getArticlesById = (req, res, next) => {
 }
 
 exports.getAllArticles = (req, res, next) => {
-        return selectAllArticles()
+        const { sort_by, order, topic } = req.query;
+        
+        return selectAllArticles(sort_by, order, topic)
         .then((articles) => {
         res.status(200).send( articles );
         })
