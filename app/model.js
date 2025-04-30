@@ -110,9 +110,19 @@ exports.removeCommentById =  (comment_id) => {
     `;
 return db.query(query, [comment_id])
     .then((result) => {
-        if (result.rowCount === 0) {
+        if (!result.rows.length) {
             throw { status: 404, msg: 'Comment not found' };
         }
         return result.rows[0];
     });
+}
+exports.selectAllUsers = () => {
+    const query = `SELECT * FROM users;`
+    return db.query(query)
+        .then((result) => {
+            if (!result.rows.length) {
+                throw { status: 404, msg: 'User not found' };
+            }
+            return result.rows;
+        })
 }
