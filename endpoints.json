@@ -81,5 +81,19 @@
         "votes": 1
       }
     }
+  },
+  "GET /api/users": {
+    "users": [
+      {
+        "username": "butter_bridge",
+        "name": "Jonny",
+        "avatar_url": "https://example.com/avatar1.jpg"
+      },
+      {
+        "username": "icellusedkars",
+        "name": "Sam",
+        "avatar_url": "https://example.com/avatar2.jpg"
+      }
+    ]
   }
 }
