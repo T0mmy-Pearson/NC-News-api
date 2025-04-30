@@ -24,25 +24,46 @@ exports.selectArticlesById = (article_id) => {
             return result.rows[0];
         })
 }
-exports.selectAllArticles = () => {
-    const query = `SELECT 
-        articles.author,
-        articles.title,
-        articles.article_id,
-        articles.topic,
-        articles.created_at,
-        articles.votes,
-        articles.article_img_url,
-        COUNT(comments.comment_id) AS comment_count
-    FROM articles
-    LEFT JOIN comments ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC;`
+exports.selectAllArticles = (sort_by = 'created_at', order = 'desc') => {
+    const validSortColumns = [
+        'article_id',
+        'title',
+        'author',
+        'votes',
+        'created_at',
+        'topic',
+        'comment_count'
+    ];
+    const validOrder = ['asc', 'desc'];
 
-return db.query(query)
-    .then((result) => {
-        return result.rows;
-    })
+    if (!validSortColumns.includes(sort_by)) {
+        throw { status: 400, msg: 'Invalid sort_by column' };
+    }
+    if (!validOrder.includes(order)) {
+        throw { status: 400, msg: 'Invalid order query' };
+    }
+
+
+    const query = `
+        SELECT 
+            articles.author,
+            articles.title,
+            articles.article_id,
+            articles.topic,
+            articles.created_at,
+            articles.votes,
+            articles.article_img_url,
+            COUNT(comments.comment_id)::TEXT AS comment_count
+        FROM articles
+        LEFT JOIN comments ON articles.article_id = comments.article_id
+        GROUP BY articles.article_id
+        ORDER BY ${sort_by} ${order};
+    `;
+
+    return db.query(query)
+        .then((result) => {
+            return result.rows; 
+        });
 };
 exports.selectCommentsByArticleId = (article_id) => {
     const query = `
@@ -126,3 +147,4 @@ exports.selectAllUsers = () => {
             return result.rows;
         })
 }
+
