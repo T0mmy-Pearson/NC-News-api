@@ -117,7 +117,7 @@ describe("GET /api/articles", () => {
               created_at: expect.any(String),
               votes: expect.any(Number),
               article_img_url: expect.any(String),
-              comment_count: expect.any(String), 
+              comment_count: expect.any(String), // should be a number
             })
           );
         });
@@ -195,6 +195,7 @@ describe('GET /api/articles/:article_id/comments', () => {
           .expect(200)
           .then(({ body }) => {
               const { comments } = body;
+              expect(comments.length).toBe(11);
               expect(Array.isArray(comments)).toBe(true);
               expect(comments).toBeSortedBy("created_at", { descending: true });
               comments.forEach((comment) => {
@@ -205,12 +206,21 @@ describe('GET /api/articles/:article_id/comments', () => {
                           created_at: expect.any(String),
                           author: expect.any(String),
                           body: expect.any(String),
-                          article_id: expect.any(Number),
+                          article_id: 1,
                       })
                   );
               });
           });
   });
+  test('200: Responds with an empty array when the article exists but has no comments', () => {
+    return request(app)
+        .get('/api/articles/2/comments') 
+        .expect(200)
+        .then(({ body }) => {
+            const { comments } = body;
+            expect(comments).toEqual([]);
+        });
+});
   describe("ERROR PATHS GET /api/articles/:article_id/comments", () => {
     test('400: Responds with an error if article_id is invalid', () => {
       return request(app)
@@ -220,6 +230,14 @@ describe('GET /api/articles/:article_id/comments', () => {
               expect(body.msg).toBe('Bad Request');
           });
   });
+  test('404: Responds with an error when the article_id is valid but does not exist', () => {
+    return request(app)
+        .get('/api/articles/9999/comments') 
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Article Not Found');
+        });
+});
   });
 });
 describe('PATCH /api/articles/:article_id', () => {
@@ -272,6 +290,7 @@ describe('PATCH /api/articles/:article_id', () => {
               expect(article.votes).toBe(100); 
           });
   });
+
 describe('ERROR PATHS PATCH /api/articles/:article_id', () => {
   test('400: Bad Request when invalid article_id is provided', () => {
       const update = { inc_votes: 10 };
@@ -284,6 +303,42 @@ describe('ERROR PATHS PATCH /api/articles/:article_id', () => {
               expect(body.msg).toBe('Bad Request');
           });
   });
+
+    test('404: Responds with an error if the article_id is valid but does not exist', () => {
+        const update = { inc_votes: 10 };
+
+        return request(app)
+            .patch('/api/articles/9999') 
+            .send(update)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Article not found');
+            });
+    });
+
+    test('400: Responds with an error if the type of inc_votes is not a number', () => {
+        const update = { inc_votes: 'ten' }; 
+
+        return request(app)
+            .patch('/api/articles/1') 
+            .send(update)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Bad Request');
+            });
+    });
+
+    test('400: Responds with an error if the body is missing the required keys (inc_votes)', () => {
+        const update = {}; 
+
+        return request(app)
+            .patch('/api/articles/1') 
+            .send(update)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Bad Request');
+            });
+    });
 });
 });
 describe('DELETE /api/comments/:comment_id', () => {

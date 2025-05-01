@@ -65,6 +65,10 @@ exports.patchArticleById = (req, res, next) => {
         const { article_id } = req.params;
         const { inc_votes } = req.body; 
 
+        if (inc_votes === undefined) {
+                return res.status(400).send({ msg: 'Bad Request' });
+            }
+
         return updateArticleById(article_id, inc_votes)
                 .then((updatedArticle) => {
                         res.status(200).send({ article: updatedArticle });
