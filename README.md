@@ -12,13 +12,4 @@ set-up databases
 
 # lecture
 
-dynamic queries: 
-
-jest sorted - 
-loop through results 
-check if previous object is lower than the current
-jest-sorted : paul copley
-
-install: npm i jest-sorted -D
-
-toBeSortedBy
+supabase - zT&@Tv*j$+Zt3zM
