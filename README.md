@@ -10,6 +10,15 @@ set-up databases
     a. test: nc_news_test
     b. dev: nc_news
 
+You should include:
+
+A link to the hosted version.
+A summary of what the project is.
+Clear instructions of how to clone, install dependencies, seed local database, and run tests.
+Information about how to create the two .env files.
+The minimum versions of Node.js, and Postgres needed to run the project.
+
+
 # lecture
 
 supabase - zT&@Tv*j$+Zt3zM

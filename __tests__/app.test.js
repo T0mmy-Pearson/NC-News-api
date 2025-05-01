@@ -62,7 +62,6 @@ describe("GET /api/articles/:article_id", () => {
       .then((response) => {
         expect(response.body.article_id).toEqual(1
         );
-        console.log(response.body);
         
         expect(response.body).toEqual(
           {

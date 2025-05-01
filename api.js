@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const db = require("./db/connection");
 const {getEndpoints, getTopics, getArticlesById, getAllArticles, postCommentByArticleId, getCommentsByArticleId, patchArticleById, deleteCommentById, getAllUsers} = require('./app/controller')
 app.use(express.json());
 
