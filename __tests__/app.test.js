@@ -55,18 +55,21 @@ describe("GET /api/topics", () => {
   });
 });
 describe("GET /api/articles/:article_id", () => {
-  test("200: Responds with the correct objecy corresponding to input article_id", () => {
+  test("200: Responds with the correct object corresponding to input article_i, including comment_count", () => {
       return request(app)
       .get('/api/articles/1')
       .expect(200)
       .then((response) => {
         expect(response.body.article_id).toEqual(1
         );
+        console.log(response.body);
+        
         expect(response.body).toEqual(
           {
             article_id: expect.any(Number),
             title: expect.any(String),
             body: expect.any(String),
+            comment_count: expect.any(String),
             votes: expect.any(Number),
             topic: expect.any(String),
             author: expect.any(String),
