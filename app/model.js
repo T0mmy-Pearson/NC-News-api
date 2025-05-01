@@ -13,7 +13,24 @@ exports.selectTopics = (req, res, next) => {
     });
 };
 exports.selectArticlesById = (article_id) => {
-    const query = `SELECT * FROM articles WHERE article_id = $1;`
+    const query = `
+        SELECT 
+            articles.article_id,
+            articles.title,
+            articles.body,
+            articles.votes,
+            articles.topic,
+            articles.author,
+            articles.created_at,
+            articles.article_img_url,
+            (
+                SELECT COUNT(*) 
+                FROM comments 
+                WHERE comments.article_id = articles.article_id
+            ) AS comment_count
+        FROM articles
+        WHERE articles.article_id = $1;
+    `
     const params = [article_id]
     
     return db.query(query, params)
