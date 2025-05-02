@@ -32,7 +32,7 @@ exports.getAllArticles = (req, res, next) => {
         
         return selectAllArticles(sort_by, order, topic)
         .then((articles) => {
-        res.status(200).send( articles );
+        res.status(200).send( {articles} );
         })
         .catch((err) => {
         next(err);
