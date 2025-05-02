@@ -1,45 +1,44 @@
 const express = require("express");
 const app = express();
-const {getEndpoints, getTopics, getArticlesById, getAllArticles, postCommentByArticleId, getCommentsByArticleId, patchArticleById, deleteCommentById, getAllUsers} = require('./app/controller')
+const apiRouter = require("./routes/api-router");
+const topicsRouter = require("./routes/topics.router");
+const articlesRouter = require("./routes/articles.router");
+const usersRouter = require("./routes/users.router");
+const { getEndpoints, deleteCommentById } = require("./app/controller");
+
 app.use(express.json());
 
-app.get("/api", getEndpoints);
-app.get("/api/topics", getTopics);
-app.get("/api/articles", getAllArticles);
-app.get("/api/articles/:article_id", getArticlesById)
-app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
-app.get('/api/users', getAllUsers);
+app.use("/api", apiRouter);
 
-app.post("/api/articles/:article_id/comments",postCommentByArticleId);
+app.use("/api/topics", topicsRouter);
+app.use("/api/articles", articlesRouter);
+app.use("/api/users", usersRouter);
 
-app.patch('/api/articles/:article_id', patchArticleById);
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
-app.delete('/api/comments/:comment_id', deleteCommentById);
-
-
-
-app.all('/*splat', (req, res) => {
+app.all("/*splat", (req, res) => {
   res.status(404).send({ msg: "Route not found" });
 });
+
 app.use((err, req, res, next) => {
-     if (err.status && err.msg) {
-      //console.log(err, "err catcher 1");
-      
-       res.status(err.status).send({ msg: err.msg });
-     } else {
-       next(err);
-     }
-   });
+  if (err.status && err.msg) {
+    res.status(err.status).send({ msg: err.msg });
+  } else {
+    next(err);
+  }
+});
+
 app.use((err, req, res, next) => {
-      if ((err.code = "22P02")) {
-        res.status(400).send({ msg: "Bad Request" });
-      } else {
-        next(err);
-      }
-    });
+  if (err.code === "22P02") {
+    res.status(400).send({ msg: "Bad Request" });
+  } else {
+    next(err);
+  }
+});
+
 app.use((err, req, res, next) => {
-        console.log(err);
-        res.status(500).send({ msg: "Internal Server Error" });
-      });
+  console.log(err);
+  res.status(500).send({ msg: "Internal Server Error" });
+});
 
 module.exports = app;

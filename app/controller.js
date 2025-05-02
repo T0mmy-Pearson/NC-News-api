@@ -4,6 +4,17 @@ const endpoints = require("../endpoints.json");
 exports.getEndpoints = (req, res, next) => {
         res.status(200).send({ endpoints });
 };
+exports.getAllUsers = (req, res, next) => {
+        return selectAllUsers()
+        .then((users) => {
+                res.status(200).send({ users });
+        })
+        .catch((err) => {
+                next(err);
+        });
+}
+
+
 
 exports.getTopics = (req, res, next) => {
     return selectTopics()
@@ -85,13 +96,4 @@ exports.deleteCommentById = (req, res, next) => {
                 .catch((err) => {
                         next(err);
                 });
-}
-exports.getAllUsers = (req, res, next) => {
-        return selectAllUsers()
-        .then((users) => {
-                res.status(200).send({ users });
-        })
-        .catch((err) => {
-                next(err);
-        });
 }
