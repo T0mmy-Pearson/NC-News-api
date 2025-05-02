@@ -5,9 +5,11 @@ exports.getEndpoints = (req, res, next) => {
         res.status(200).send({ endpoints });
 };
 exports.getAllUsers = (req, res, next) => {
-        return selectAllUsers()
-        .then((users) => {
-                res.status(200).send({ users });
+        const { username } = req.params; 
+
+        return selectAllUsers(username)
+        .then((result) => {
+                res.status(200).send( result );
         })
         .catch((err) => {
                 next(err);
