@@ -102,6 +102,30 @@ exports.selectAllArticles = (sort_by = 'created_at', order = 'desc', topic) => {
         return result.rows;
     });
 };
+exports.selectAllUsers = (username) => {
+    let baseQuery = `SELECT * FROM users`;
+    const queryArgs = [];
+
+    if (username) {
+        baseQuery += ` WHERE username = $1`;
+        queryArgs.push(username);
+    }
+
+    if (username) {
+    return db.query(baseQuery, queryArgs)
+    .then((result) => {
+        if (username && !result.rows.length) {
+            return Promise.reject({ status: 404, msg: 'invalid user' });
+        } return db.query(baseQuery, queryArgs);
+    })
+    .then((result) => {
+        return result.rows[0];
+    });
+}
+    return db.query(baseQuery).then((result) => {
+        return result.rows;
+});
+};
 exports.selectCommentsByArticleId = (article_id) => {
     const query = `
         SELECT 
@@ -186,16 +210,6 @@ return db.query(query, [comment_id])
         }
         return result.rows[0];
     });
-}
-exports.selectAllUsers = () => {
-    const query = `SELECT * FROM users;`
-    return db.query(query)
-        .then((result) => {
-            if (!result.rows.length) {
-                throw { status: 404, msg: 'User not found' };
-            }
-            return result.rows;
-        })
 }
 
 
