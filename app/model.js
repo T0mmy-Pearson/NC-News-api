@@ -1,4 +1,5 @@
 const db = require("../db/connection")
+const checkTopicExists = require('./utils.models')
 
 
 exports.selectTopics = (req, res, next) => {
@@ -54,38 +55,53 @@ exports.selectAllArticles = (sort_by = 'created_at', order = 'desc', topic) => {
     const validOrder = ['asc', 'desc'];
 
     if (!validSortColumns.includes(sort_by)) {
-        throw { status: 400, msg: 'Invalid sort_by column' };
+        return Promise.reject({ status: 400, msg: 'Invalid sort_by column' });
     }
     if (!validOrder.includes(order)) {
-        throw { status: 400, msg: 'Invalid order query' };
+        return Promise.reject({ status: 400, msg: 'Invalid order query' });
     }
 
-const baseQuery = `
-SELECT  articles.author,
-        articles.title,
-        articles.article_id,
-        articles.topic,
-        articles.created_at,
-        articles.votes,
-        articles.article_img_url,
-        COUNT(comments.comment_id)::TEXT AS comment_count
-FROM articles
-LEFT JOIN comments ON articles.article_id = comments.article_id
-`;
+    let baseQuery = `
+        SELECT 
+            articles.author,
+            articles.title,
+            articles.article_id,
+            articles.topic,
+            articles.created_at,
+            articles.votes,
+            articles.article_img_url,
+            COUNT(comments.comment_id)::TEXT AS comment_count
+        FROM articles
+        LEFT JOIN comments ON articles.article_id = comments.article_id
+    `;
+    const queryArgs = [];
 
 
-const whereClause = topic ? `WHERE articles.topic = $1` : '';
-const groupBy = `GROUP BY articles.article_id`;
-const orderBy = `ORDER BY ${sort_by} ${order}`;
+    if (topic) {
+        baseQuery += ` WHERE articles.topic = $1`;
+        queryArgs.push(topic);
+    }
 
-const query = `${baseQuery} ${whereClause} ${groupBy} ${orderBy};`;
+    baseQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
 
-const params = topic ? [topic] : [];
-return db.query(query, params)
-    .then((result) => {
-        return result.rows 
-    })
-}
+    if (topic) {
+        const topicCheckQuery = `SELECT * FROM topics WHERE slug = $1;`;
+        return db.query(topicCheckQuery, [topic])
+            .then((result) => { 
+                if (!result.rows.length) {
+                    return Promise.reject({ status: 404, msg: 'invalid topic' });
+                }
+                return db.query(baseQuery, queryArgs);
+            })
+            .then((result) => {
+                return result.rows;
+            });
+    }
+
+   return db.query(baseQuery, queryArgs).then((result) => {
+        return result.rows;
+    });
+};
 exports.selectCommentsByArticleId = (article_id) => {
     const query = `
         SELECT 
@@ -181,4 +197,6 @@ exports.selectAllUsers = () => {
             return result.rows;
         })
 }
+
+
 

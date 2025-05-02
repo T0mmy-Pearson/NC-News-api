@@ -102,9 +102,10 @@ describe("GET /api/articles", () => {
     return request(app)
       .get('/api/articles')
       .expect(200)
-      .then(({ body }) => {
-        const articles = body; 
-        expect(Array.isArray(articles)).toBe(true);
+      .then(( { body } ) => {
+        const {articles} = body; 
+
+
         expect(articles).toBeSortedBy("created_at", { descending: true });
 
 
@@ -389,19 +390,20 @@ describe('GET /api/users', () => {
 });
 describe('GET /api/articles (sorting queries)', () => {
   test('200: Sorts default column created_at and in descending order by default', () => {
-      return request(app)
-          .get('/api/articles')
-          .expect(200)
-          .then(({ body }) => {
-              expect(body).toBeSortedBy("created_at", { descending: true });
-          });
-  });
+    return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({ body }) => {
+            const { articles } = body; 
+            expect(articles).toBeSortedBy("created_at", { descending: true }); 
+        });
+});
 test('200: correct data types and properties in output', () => {
   return request(app)
       .get('/api/articles?sort_by=votes&order=asc')
       .expect(200)
       .then(({ body }) => {
-          const articles = body;
+          const {articles} = body;
           articles.forEach((article) => {
               expect(article).toEqual(
                   expect.objectContaining({
@@ -419,16 +421,15 @@ test('200: correct data types and properties in output', () => {
       });
 });
 });
-
 describe('GET /api/articles (topic query)', () => {
-  test('200: Filters articles by a valid topic', () => {
+  test('200: Filters articles by a valid topic, returns only articles on topic', () => {
       return request(app)
-          .get('/api/articles?topic=coding')
+          .get('/api/articles?topic=mitch')
           .expect(200)
           .then(({ body }) => {
-              const articles  = body;
+              const {articles}  = body;
               articles.forEach((article) => {
-                  expect(article.topic).toBe('coding');
+                  expect(article.topic).toBe('mitch');
               });
           });
   });
@@ -437,16 +438,19 @@ describe('GET /api/articles (topic query)', () => {
         .get('/api/articles?topic=paper')
         .expect(200)
         .then(({ body }) => {
-            expect(body).toEqual([]);
+          console.log(body);
+          // body is currently an object with a property 'articles'
+            expect(body.articles).toEqual([]);
         });
 });
-test('200: Responds with all articles if the topic query is omitted', () => {
-  return request(app)
-      .get('/api/articles')
-      .expect(200)
-      .then(({ body }) => {
-          const articles  = body;
-          expect(articles.length).toBeGreaterThan(0);
-      });
+describe('ERROR PATHS GET /api/articles (topic query)', () => {
+  test('404: Not Found when topic query does not exist', () => {
+      return request(app)
+          .get('/api/articles?topic=puppet')
+          .expect(404)
+          .then(({ body }) => {
+          expect(body.msg).toBe('invalid topic');
+          });
+  });
 });
 });
