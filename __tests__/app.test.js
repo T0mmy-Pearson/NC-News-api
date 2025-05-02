@@ -438,9 +438,7 @@ describe('GET /api/articles (topic query)', () => {
         .get('/api/articles?topic=paper')
         .expect(200)
         .then(({ body }) => {
-          console.log(body);
-          // body is currently an object with a property 'articles'
-            expect(body.articles).toEqual([]);
+        expect(body.articles).toEqual([]);
         });
 });
 describe('ERROR PATHS GET /api/articles (topic query)', () => {
