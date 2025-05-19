@@ -4,7 +4,11 @@ const apiRouter = require("./routes/api-router");
 const topicsRouter = require("./routes/topics.router");
 const articlesRouter = require("./routes/articles.router");
 const usersRouter = require("./routes/users.router");
+const commentsRouter = require("./routes/comments.router");
 const { getEndpoints, deleteCommentById } = require("./app/controller");
+const cors = require('cors');
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -13,6 +17,7 @@ app.use("/api", apiRouter);
 app.use("/api/topics", topicsRouter);
 app.use("/api/articles", articlesRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/comments", commentsRouter);
 
 app.delete("/api/comments/:comment_id", deleteCommentById);
 
