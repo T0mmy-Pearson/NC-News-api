@@ -454,8 +454,6 @@ describe('GET /api/users/:username', () => {
         .get('/api/users/butter_bridge')
         .expect(200)
         .then(({ body }) => {
-            console.log("user in test", body); 
-            
             expect(body).toEqual(
                 expect.objectContaining({
                     username: 'butter_bridge',
@@ -476,4 +474,65 @@ describe('ERROR PATHS GET /api/users/:username', () => {
 	});
 });
 
+});
+describe('PATCH /api/comments/:comment_id', () => {
+	test('200: Updates the votes on a comment and responds with the updated comment', () => {
+			return request(app)
+					.patch('/api/comments/1')
+					.send({ inc_votes: 1 })
+					.expect(200)
+					.then(({ body }) => {
+							expect(body.comment).toEqual(
+									expect.objectContaining({
+											comment_id: 1,
+											votes: expect.any(Number),
+											body: expect.any(String),
+											author: expect.any(String),
+											article_id: expect.any(Number),
+											created_at: expect.any(String),
+									})
+							);
+							expect(body.comment.votes).toBe(17); 
+					});
+	});
+
+	/* test('400: Responds with an error for an invalid inc_votes value', () => {
+			return request(app)
+					.patch('/api/comments/1')
+					.send({ inc_votes: 'not-a-number' })
+					.expect(400)
+					.then(({ body }) => {
+							expect(body.msg).toBe('Invalid inc_votes value');
+					});
+	}); */
+
+	test('404: Responds with an error for a non-existent comment_id', () => {
+			return request(app)
+					.patch('/api/comments/9999')
+					.send({ inc_votes: 1 })
+					.expect(404)
+					.then(({ body }) => {
+							expect(body.msg).toBe('Comment not found');
+					});
+	});
+
+/* 	test('400: Responds with an error for a malformed comment_id', () => {
+			return request(app)
+					.patch('/api/comments/not-a-valid-id')
+					.send({ inc_votes: 1 })
+					.expect(400)
+					.then(({ body }) => {
+							expect(body.msg).toBe('Invalid comment_id');
+					});
+	}); */
+
+	/* test('400: Responds with an error when inc_votes is missing from the request body', () => {
+			return request(app)
+					.patch('/api/comments/1')
+					.send({})
+					.expect(400)
+					.then(({ body }) => {
+							expect(body.msg).toBe('Invalid inc_votes value');
+					});
+	}); */
 });

@@ -212,5 +212,30 @@ return db.query(query, [comment_id])
     });
 }
 
+exports.updateCommentVotes = (comment_id, inc_votes) => {
+
+    if (inc_votes === undefined || typeof inc_votes !== 'number') {
+        return res.status(400).send({ msg: 'Invalid inc_votes value' });
+    } /* else if (comment_id === undefined || typeof comment_id !== 'number') {
+        return res.status(400).send({ msg: 'Invalid comment_id' });
+    }  */
+
+    const query = `
+        UPDATE comments
+        SET votes = votes + $1
+        WHERE comment_id = $2
+        RETURNING *;
+    `;
+    const params = [inc_votes, comment_id];
+
+    return db.query(query, params)
+        .then((result) => {
+            if (!result.rows.length) {
+                return Promise.reject({ status: 404, msg: "Comment not found" });
+            }
+            return result.rows[0];
+        });
+};
+
 
 

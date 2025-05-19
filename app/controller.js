@@ -1,4 +1,4 @@
-const {selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById, removeCommentById, selectAllUsers} = require('./model.js')
+const {selectTopics, selectArticlesById, selectAllArticles, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById, removeCommentById, selectAllUsers, updateCommentVotes} = require('./model.js')
 const endpoints = require("../endpoints.json");
 
 exports.getEndpoints = (req, res, next) => {
@@ -99,3 +99,18 @@ exports.deleteCommentById = (req, res, next) => {
                         next(err);
                 });
 }
+
+exports.patchCommentVotes = (req, res, next) => {
+        const { comment_id } = req.params;
+        console.log(comment_id);
+        
+        const { inc_votes } = req.body;
+
+        return updateCommentVotes(comment_id, inc_votes)
+            .then((updatedComment) => {
+                res.status(200).send({ comment: updatedComment });
+            })
+            .catch((err) => {
+                next(err);
+            });
+};
