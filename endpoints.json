@@ -82,6 +82,16 @@
       }
     }
   },
+  "/api/articles": {
+    "get": {
+      "description": "Returns an array of all articles. Accepts query parameters: sort_by, order, and topic. The topic query filters articles by the specified topic. If the topic does not exist, responds with 404.",
+      "queries": [
+        "sort_by (string, optional): column to sort by",
+        "order (asc/desc, optional): sort order",
+        "topic (string, optional): filter articles by topic"
+      ]
+    }
+  },
   "GET /api/users": {
     "users": [
       {
